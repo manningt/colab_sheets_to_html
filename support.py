@@ -2,6 +2,7 @@
 These functions are intended to be called from a colab project.
 The spreadsheet object is a google sheet.
 '''
+import enum
 
 def make_room_names_list(spreadsheet):
    worksheet = spreadsheet.worksheet('Locations')
