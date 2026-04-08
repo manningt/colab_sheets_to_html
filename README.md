@@ -19,6 +19,37 @@ Here is an example caption:
 </span>
 ```
 # processing steps:
-1. generate supporting dictionaries: room_list, people_list, object_column_names_enum
+1. generate supporting dictionaries: object_column_names_enum, room_list, people_list, category_dict
 2. generate array of objects with each object having a string used for the image 'alt' and a string of HTML used for the image figcaption
 3. generate the URL to the object's thumbnail on the team drive
+4. write out the pages
+
+# figure caption generation
+## people:
+* subject comes from Subject_Style if Object_type in PEOPLE_IMAGE_TYPE_LIST
+* relationship to JSM comes from people_list
+* creator
+* creation date
+* media
+* creator description from people_list
+* subject description from people_list
+* Narrative from Narrative
+* object ID with link to full size picture
+
+## people columns and people dict:
+people column enum:  
+```
+  for column in people_col_name_e:
+      print(column.name, column.value)
+Full_Name 0
+Description 1
+RelationshipToJudith 2
+URL 3
+Comment 4
+Father 5
+Mother 6
+Spouse 7
+Marriage_Date 8
+Marriage_Location 9
+```
+The dict is {"Full_Name": [Description, RelationshipToJudith, URL]}
