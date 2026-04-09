@@ -19,10 +19,18 @@ Here is an example caption:
 </span>
 ```
 # processing steps:
-1. generate supporting dictionaries: object_column_names_enum, room_list, people_list, category_dict
-2. generate array of objects with each object having a string used for the image 'alt' and a string of HTML used for the image figcaption
-3. generate the URL to the object's thumbnail on the team drive
-4. write out the pages
+1. generate supporting dictionaries: object_column_names_enum, location_list, people_dict, category_dict
+2. init object_location_array (per location array of objects)
+3. init object_category_array (per category array of objects)
+4. iterate through object sheet:
+    - check if missing; report and skip
+    - create object_list [{id: []}]
+    - add to object_dict:
+        - image URL
+        - alt text 
+        - figcaption
+5. generate location pages:
+    -iterate through object_location_array
 
 # figure caption generation
 ## people:
