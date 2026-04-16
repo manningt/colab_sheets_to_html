@@ -4,6 +4,7 @@ The spreadsheet object is a google sheet.
 '''
 import enum
 import glob
+import subprocess
 
 PEOPLE_IMAGE_TYPE_LIST = ["portrait", "silhouette", "bust", "miniature", "bronze" ]
 TITLED_ARTWORK_TYPE_LIST = ["painting", "watercolor", "lithograph", "sculpture", "coat-of-arms", \
@@ -17,15 +18,6 @@ test_object_list = [{"oid0028_C":[None,None,None]}, {"oid1300":[None,None,None]}
 FILE_ID_INDEX = 0
 ALT_INDEX = 1
 FIGCAPT_INDEX = 2
-
-def make_location_list(spreadsheet):
-   worksheet = spreadsheet.worksheet('Locations')
-   rows = worksheet.get_all_values()
-   location_list = []
-   # 'Room Name' is the first column (index 0) and data starts from the third row (index 2)
-   for row in rows[2:]:
-      room_names_list.append(row[0].replace(" ", "_"))
-   return location_list
 
 def make_col_name_enum(worksheet):
   col_names = worksheet.row_values(1)
@@ -46,13 +38,12 @@ def make_people_dict(worksheet):
       people_dict[key] = value
    return people_dict
 
-def get_image_url(object_list):
+def get_image_url(object_list, search_path):
    #Drive foldername convention: 0000-FineArts, 0500-Furniture, 0700-Textiles, etc
    for index, obj in enumerate(object_list):
       # how much more efficient is it to have the xxxx-category foldername in the search?
       # search_path = f'{image_dir}/Object-Photos/0000-Fine_Art/oid0028_C*.*'
       oid = next(iter(obj))
-      search_path = f'{image_dir}/Object-Photos/*/{oid}*.*'
       files = glob.glob(search_path, recursive=True)
       img_filename = None
       if len(files) == 0:
@@ -71,3 +62,21 @@ def get_image_url(object_list):
          fid = subprocess.getoutput(f"xattr -p 'user.drive.id' '{img_filename}'")
          object_list[index][oid][FILE_ID_INDEX] = fid
 
+def make_obj_list(inventory_rows, col_enum, locations_dict, entries=None):
+   unrecognized_locations_dict = {}
+   object_list = []
+   if entries is None:
+      entries = len(inventory_rows)
+   entries += 1 #skip first row
+   for row in inventory_rows[1:entries]:
+      object_list.append({row[col_enum.ID.value]: [None,None,None]})
+      # append object to locations_dict
+      if row[col_enum.Location.value] in locations_dict:
+         locations_dict[row[col_enum.Location.value]].append(row[col_enum.ID.value])
+      else:
+         print(f"{row[col_enum.Location.value]=} not in locations_dict for {row[col_enum.ID.value]}")
+         if row[col_enum.Location.value] in unrecognized_locations_dict:
+            unrecognized_locations_dict[row[col_enum.Location.value]].append(row[col_enum.ID.value])
+         else:
+            unrecognized_locations_dict[row[col_enum.Location.value]] = [(row[col_enum.ID.value])]
+   return object_list, unrecognized_locations_dict
