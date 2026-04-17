@@ -4,7 +4,7 @@ The spreadsheet object is a google sheet.
 '''
 import enum
 import glob
-import os, subprocess
+import os
 
 PEOPLE_IMAGE_TYPE_LIST = ["portrait", "silhouette", "bust", "miniature", "bronze" ]
 TITLED_ARTWORK_TYPE_LIST = ["painting", "watercolor", "lithograph", "sculpture", "coat-of-arms", \
@@ -40,15 +40,18 @@ def make_people_dict(worksheet):
 
 def get_image_url(object_list, images_folder):
    #Drive foldername convention: 0000-FineArts, 0500-Furniture, 0700-Textiles, etc
+   oid_with_no_image_files_list = []
+   oid_with_invalid_file_id_list = []
    for index, obj in enumerate(object_list):
       # how much more efficient is it to have the xxxx-category foldername in the search?
       # search_path = f'{image_dir}/Object-Photos/0000-Fine_Art/oid0028_C*.*'
       # search_path = f'{image_dir}/Object-Photos/*/{oid}*.*'
-      oid = next(iter(obj))
+      oid = next(iter(obj))  #get the key, which is the oid
       search_pattern = os.path.join(images_folder, f"*/{oid}*.*")
       files = glob.glob(search_pattern, recursive=True)
       img_filename = None
       if len(files) == 0:
+         oid_with_no_image_files_list.append(oid)
          print(f"No files found for {obj}")
       elif len(files) == 1:
          img_filename = files[0]
@@ -61,8 +64,15 @@ def get_image_url(object_list, images_folder):
          if len(non_detail_files) > 1:
             print(f"Multiple images for {obj}")
       if img_filename:
-         fid = subprocess.getoutput(f"xattr -p 'user.drive.id' '{img_filename}'")
-         object_list[index][oid][FILE_ID_INDEX] = fid
+         fid = xattr.getxattr(img_filename, "user.drive.id").decode('utf-8') #linux
+         # fid = subprocess.getoutput(f"xattr -p 'user.drive.id' '{img_filename}'") #macos
+         if len(fid) == 33:
+            object_list[index][oid][FILE_ID_INDEX] = f'https://drive.google.com/a/sargenthouse.org/thumbnail?id={fid}'
+         else:
+            print(f"Invalid fid: {fid} for {oid}")
+            oid_with_invalid_file_id_list.append(oid)
+
+   return oid_with_no_image_files_list, oid_with_invalid_file_id_list
 
 def make_obj_list(inventory_rows, col_enum, locations_dict, entries=None):
    unrecognized_locations_dict = {}
