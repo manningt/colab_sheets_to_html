@@ -4,7 +4,7 @@ The spreadsheet object is a google sheet.
 '''
 import enum
 import glob
-import subprocess
+import os, subprocess
 
 PEOPLE_IMAGE_TYPE_LIST = ["portrait", "silhouette", "bust", "miniature", "bronze" ]
 TITLED_ARTWORK_TYPE_LIST = ["painting", "watercolor", "lithograph", "sculpture", "coat-of-arms", \
@@ -38,13 +38,15 @@ def make_people_dict(worksheet):
       people_dict[key] = value
    return people_dict
 
-def get_image_url(object_list, search_path):
+def get_image_url(object_list, images_folder):
    #Drive foldername convention: 0000-FineArts, 0500-Furniture, 0700-Textiles, etc
    for index, obj in enumerate(object_list):
       # how much more efficient is it to have the xxxx-category foldername in the search?
       # search_path = f'{image_dir}/Object-Photos/0000-Fine_Art/oid0028_C*.*'
+      # search_path = f'{image_dir}/Object-Photos/*/{oid}*.*'
       oid = next(iter(obj))
-      files = glob.glob(search_path, recursive=True)
+      search_pattern = os.path.join(images_folder, f"*/{oid}*.*")
+      files = glob.glob(search_pattern, recursive=True)
       img_filename = None
       if len(files) == 0:
          print(f"No files found for {obj}")
