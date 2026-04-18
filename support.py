@@ -7,8 +7,7 @@ import glob
 import os
 try:
    import xattr
-except:
-   Exception as e: print(e)
+except Exception as e: print(e)
 
 PEOPLE_IMAGE_TYPE_LIST = ["portrait", "silhouette", "bust", "miniature", "bronze" ]
 TITLED_ARTWORK_TYPE_LIST = ["painting", "watercolor", "lithograph", "sculpture", "coat-of-arms", \
