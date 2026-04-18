@@ -5,6 +5,10 @@ The spreadsheet object is a google sheet.
 import enum
 import glob
 import os
+try:
+   import xattr
+except:
+   Exception as e: print(e)
 
 PEOPLE_IMAGE_TYPE_LIST = ["portrait", "silhouette", "bust", "miniature", "bronze" ]
 TITLED_ARTWORK_TYPE_LIST = ["painting", "watercolor", "lithograph", "sculpture", "coat-of-arms", \
@@ -15,9 +19,11 @@ CATEGORY_TYPE_LIST = ["Fine_Art", "Silver", "Ceramics", "Glass", "Metals", "Furn
 
 IGNORE_OBJECT_LIST = ["returned", "deaccessioned", "unassigned"]
 test_object_list = [{"oid0028_C":[None,None,None]}, {"oid1300":[None,None,None]}]
-FILE_ID_INDEX = 0
-ALT_INDEX = 1
-FIGCAPT_INDEX = 2
+
+class OBJ_ARRAY_IDX_E(enum.Enum): 
+   THUMBNAIL = 0
+   ALT = 1
+   FIGCAPT = 2
 
 def make_col_name_enum(worksheet):
   col_names = worksheet.row_values(1)
@@ -67,7 +73,7 @@ def get_image_url(object_list, images_folder):
          fid = xattr.getxattr(img_filename, "user.drive.id").decode('utf-8') #linux
          # fid = subprocess.getoutput(f"xattr -p 'user.drive.id' '{img_filename}'") #macos
          if len(fid) == 33:
-            object_list[index][oid][FILE_ID_INDEX] = f'https://drive.google.com/a/sargenthouse.org/thumbnail?id={fid}'
+            object_list[index][oid][OBJ_ARRAY_IDX_E.THUMBNAIL.value] = f'https://drive.google.com/a/sargenthouse.org/thumbnail?id={fid}'
          else:
             print(f"Invalid fid: {fid} for {oid}")
             oid_with_invalid_file_id_list.append(oid)
