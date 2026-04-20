@@ -86,7 +86,8 @@ def make_obj_list(inventory_rows, col_enum, locations_dict, entries=None):
       entries = len(inventory_rows)
    entries += 1 #skip first row
    for row in inventory_rows[1:entries]:
-      object_list.append({row[col_enum.ID.value]: [None,None,None]})
+      alt = f'{row[col_enum.ID.value]} {row[col_enum.col_names.Original_Description.value]}'
+      object_list.append({row[col_enum.ID.value]: [None,alt,None]})
       # append object to locations_dict
       if row[col_enum.Location.value] in locations_dict:
          locations_dict[row[col_enum.Location.value]].append(row[col_enum.ID.value])
