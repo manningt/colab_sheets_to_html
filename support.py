@@ -8,6 +8,12 @@ import os
 try:
    import xattr
 except Exception as e: print(e)
+try:
+   from dominate import document as dom_doc
+   from dominate.tags import *
+except Exception as e: print(e)
+
+from markdown import Markdown
 
 PEOPLE_IMAGE_TYPE_LIST = ["portrait", "silhouette", "bust", "miniature", "bronze" ]
 TITLED_ARTWORK_TYPE_LIST = ["painting", "watercolor", "lithograph", "sculpture", "coat-of-arms", \
@@ -98,3 +104,34 @@ def make_obj_list(inventory_rows, col_enum, locations_dict, entries=None):
          else:
             unrecognized_locations_dict[row[col_enum.Location.value]] = [(row[col_enum.ID.value])]
    return object_list, unrecognized_locations_dict
+
+def create_html_files(page_name_list, obj_per_page_dict, output_dir_path):
+  # create a list of docs, one for each list item:
+   html_page_list = []
+   for page_name in page_name_list:
+      if page_name not in obj_per_page_dict:
+         print(f'error: {page_name} not in {obj_per_page_dict} dictionary')
+         continue
+      if len(obj_per_page_dict[page_name])== 0:
+         print(f'warning: no objects in {page_name}')
+         continue
+      doc = dom_doc(title=page_name)
+      with doc.head:
+         link(rel='stylesheet', href='shm-binder.css')
+         script(type='text/javascript', src='shm-binder.js')
+         meta(name="viewport", content="width=device-width, initial-scale=1")
+      with doc.body:
+         div(_class ="page_title").add(page_name)
+         for obj in obj_per_page_dict[page_name]:
+            div(img(src=obj[OBJ_ARRAY_IDX_E.THUMBNAIL.value], alt=obj[OBJ_ARRAY_IDX_E.ALT.value], \
+               style="width:100%", _class='column'))
+      html_page_list.append(doc)
+
+   if not os.path.exists(output_dir_path):
+      os.makedirs(output_dir_path)
+   os.chdir(output_dir_path)
+   # write out each page
+   for idx, page_name in enumerate(page_name_list):
+      out_filename = page_name.replace(" ", "_") + '.html'
+      with open(out_filename, 'w') as f:
+         f.write(html_page_list[idx].render())
