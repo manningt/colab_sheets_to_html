@@ -23,7 +23,7 @@ CATEGORY_TYPE_LIST = ["Fine_Art", "Silver", "Ceramics", "Glass", "Metals", "Furn
                       "Needlework", "Books", "Not_In_Collection", "On_Loan"]
 
 IGNORE_OBJECT_LIST = ["returned", "deaccessioned", "unassigned"]
-test_object_list = [{"oid0028_C":[None,None,None]}, {"oid1300":[None,None,None]}]
+test_object_dict = {"oid0028_C":[None,None,None], "oid1300":[None,None,None]}
 
 class OBJ_ARRAY_IDX_E(enum.Enum): 
    THUMBNAIL = 0
@@ -49,21 +49,20 @@ def make_people_dict(worksheet):
       people_dict[key] = value
    return people_dict
 
-def get_image_url(object_list, images_folder):
+def get_image_url(object_dict, images_folder):
    #Drive foldername convention: 0000-FineArts, 0500-Furniture, 0700-Textiles, etc
    oid_with_no_image_files_list = []
    oid_with_invalid_file_id_list = []
-   for index, obj in enumerate(object_list):
+   for oid in object_dict:
       # how much more efficient is it to have the xxxx-category foldername in the search?
       # search_path = f'{image_dir}/Object-Photos/0000-Fine_Art/oid0028_C*.*'
       # search_path = f'{image_dir}/Object-Photos/*/{oid}*.*'
-      oid = next(iter(obj))  #get the key, which is the oid
       search_pattern = os.path.join(images_folder, f"*/{oid}*.*")
       files = glob.glob(search_pattern, recursive=True)
       img_filename = None
       if len(files) == 0:
          oid_with_no_image_files_list.append(oid)
-         print(f"No files found for {obj}")
+         print(f"No files found for {oid}")
       elif len(files) == 1:
          img_filename = files[0]
       else:
@@ -73,27 +72,27 @@ def get_image_url(object_list, images_folder):
                non_detail_files.append(f)
          img_filename = non_detail_files[0]
          if len(non_detail_files) > 1:
-            print(f"Multiple images for {obj}")
+            print(f"Multiple images for {oid}")
       if img_filename:
          fid = xattr.getxattr(img_filename, "user.drive.id").decode('utf-8') #linux
          # fid = subprocess.getoutput(f"xattr -p 'user.drive.id' '{img_filename}'") #macos
          if len(fid) == 33:
-            object_list[index][oid][OBJ_ARRAY_IDX_E.THUMBNAIL.value] = f'https://drive.google.com/a/sargenthouse.org/thumbnail?id={fid}'
+            object_dict[oid][OBJ_ARRAY_IDX_E.THUMBNAIL.value] = f'https://drive.google.com/a/sargenthouse.org/thumbnail?id={fid}'
          else:
             print(f"Invalid fid: {fid} for {oid}")
             oid_with_invalid_file_id_list.append(oid)
 
    return oid_with_no_image_files_list, oid_with_invalid_file_id_list
 
-def make_obj_list(inventory_rows, col_enum, locations_dict, entries=None):
+def make_obj_dict(inventory_rows, col_enum, locations_dict, entries=None):
    unrecognized_locations_dict = {}
-   object_list = []
+   object_dict = {}
    if entries is None:
       entries = len(inventory_rows)
    entries += 1 #skip first row
    for row in inventory_rows[1:entries]:
-      alt = f'{row[col_enum.ID.value]} {row[col_enum.col_names.Original_Description.value]}'
-      object_list.append({row[col_enum.ID.value]: [None,alt,None]})
+      alt = f'{row[col_enum.ID.value]} {row[col_enum.Original_Description.value]}'
+      object_dict[row[col_enum.ID.value]] = [None, alt, None]
       # append object to locations_dict
       if row[col_enum.Location.value] in locations_dict:
          locations_dict[row[col_enum.Location.value]].append(row[col_enum.ID.value])
@@ -103,9 +102,9 @@ def make_obj_list(inventory_rows, col_enum, locations_dict, entries=None):
             unrecognized_locations_dict[row[col_enum.Location.value]].append(row[col_enum.ID.value])
          else:
             unrecognized_locations_dict[row[col_enum.Location.value]] = [(row[col_enum.ID.value])]
-   return object_list, unrecognized_locations_dict
+   return object_dict, unrecognized_locations_dict
 
-def create_html_files(page_name_list, obj_per_page_dict, output_dir_path):
+def create_html_files(page_name_list, obj_per_page_dict, output_dir_path, object_dict):
   # create a list of docs, one for each list item:
    html_page_list = []
    for page_name in page_name_list:
@@ -122,16 +121,17 @@ def create_html_files(page_name_list, obj_per_page_dict, output_dir_path):
          meta(name="viewport", content="width=device-width, initial-scale=1")
       with doc.body:
          div(_class ="page_title").add(page_name)
-         for obj in obj_per_page_dict[page_name]:
-            div(img(src=obj[OBJ_ARRAY_IDX_E.THUMBNAIL.value], alt=obj[OBJ_ARRAY_IDX_E.ALT.value], \
-               style="width:100%", _class='column'))
+         for oid in obj_per_page_dict[page_name]:
+            img_src = object_dict[oid][OBJ_ARRAY_IDX_E.THUMBNAIL.value]
+            img_alt = object_dict[oid][OBJ_ARRAY_IDX_E.ALT.value]
+            div(img(src=img_src, alt=img_alt, style="width:100%", _class='column'))
       html_page_list.append(doc)
 
    if not os.path.exists(output_dir_path):
       os.makedirs(output_dir_path)
    os.chdir(output_dir_path)
    # write out each page
-   for idx, page_name in enumerate(page_name_list):
-      out_filename = page_name.replace(" ", "_") + '.html'
+   for page in html_page_list:
+      out_filename = page.title.replace(" ", "_") + '.html'
       with open(out_filename, 'w') as f:
-         f.write(html_page_list[idx].render())
+         f.write(page.render())
