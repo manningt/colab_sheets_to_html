@@ -124,7 +124,7 @@ def create_html_files(page_name_list, obj_per_page_dict, output_dir_path, object
          for oid in obj_per_page_dict[page_name]:
             img_src = object_dict[oid][OBJ_ARRAY_IDX_E.THUMBNAIL.value]
             img_alt = object_dict[oid][OBJ_ARRAY_IDX_E.ALT.value]
-            div(img(src=img_src, alt=img_alt, style="width:100%", _class='column'))
+            div(img(src=img_src, alt=img_alt, style="width:100%"), _class='column')
       html_page_list.append(doc)
 
    if not os.path.exists(output_dir_path):
