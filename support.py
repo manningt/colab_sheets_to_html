@@ -23,7 +23,6 @@ CATEGORY_TYPE_LIST = ["Fine_Art", "Silver", "Ceramics", "Glass", "Metals", "Furn
                       "Needlework", "Books", "Not_In_Collection", "On_Loan"]
 
 IGNORE_OBJECT_LIST = ["returned", "deaccessioned", "unassigned"]
-test_object_dict = {"oid0028_C":[None,None,None], "oid1300":[None,None,None]}
 
 class OBJ_ARRAY_IDX_E(enum.Enum): 
    THUMBNAIL = 0
@@ -50,6 +49,7 @@ def make_people_dict(worksheet):
    return people_dict
 
 def get_image_url(object_dict, images_folder):
+   # fills in the thumbnail image parameter for each object
    #Drive foldername convention: 0000-FineArts, 0500-Furniture, 0700-Textiles, etc
    oid_with_no_image_files_list = []
    oid_with_invalid_file_id_list = []
@@ -85,27 +85,39 @@ def get_image_url(object_dict, images_folder):
    return oid_with_no_image_files_list, oid_with_invalid_file_id_list
 
 def make_obj_dict(inventory_rows, col_enum, locations_dict, entries=None):
+   #example object_dict = {"oid0028_C":[None,None,None], "oid1300":[None,None,None]}   # objject_dict = 
+   # fills in 2nd parameter in array (alt)
+   # as well as creating a list of objects per location and category
    unrecognized_locations_dict = {}
    object_dict = {}
    if entries is None:
       entries = len(inventory_rows)
    entries += 1 #skip first row
-   for row in inventory_rows[1:entries]:
-      alt = f'{row[col_enum.ID.value]} {row[col_enum.Original_Description.value]}'
-      object_dict[row[col_enum.ID.value]] = [None, alt, None]
+   for row_num, row in enumerate(inventory_rows[1:entries]):
+      oid = row[col_enum.ID.value]
+      desc = row[col_enum.Original_Description.value]
+      location = row[col_enum.Location.value]
+      if len(oid) != 7:
+         print(f'skipping row {row_num} due to invalid OID={oid}')
+         continue
+      if len(desc) < 1:
+         print(f'skipping row {row_num} due to no description')
+         continue
+      alt = f'{oid} {desc}'
+      object_dict[oid] = [None, alt, None]
       # append object to locations_dict
-      if row[col_enum.Location.value] in locations_dict:
-         locations_dict[row[col_enum.Location.value]].append(row[col_enum.ID.value])
+      if location in locations_dict:
+         locations_dict[location].append(oid)
       else:
-         print(f"{row[col_enum.Location.value]=} not in locations_dict for {row[col_enum.ID.value]}")
-         if row[col_enum.Location.value] in unrecognized_locations_dict:
-            unrecognized_locations_dict[row[col_enum.Location.value]].append(row[col_enum.ID.value])
+         print(f"{row[col_enum.Location.value]=} not in locations_dict for {oid}")
+         if location in unrecognized_locations_dict:
+            unrecognized_locations_dict[location].append(oid)
          else:
-            unrecognized_locations_dict[row[col_enum.Location.value]] = [(row[col_enum.ID.value])]
+            unrecognized_locations_dict[location] = [oid]
    return object_dict, unrecognized_locations_dict
 
 def create_html_files(page_name_list, obj_per_page_dict, output_dir_path, object_dict):
-  # create a list of docs, one for each list item:
+  # create a list of docs, one for each item in page_name_list:
    html_page_list = []
    for page_name in page_name_list:
       if page_name not in obj_per_page_dict:
@@ -135,3 +147,46 @@ def create_html_files(page_name_list, obj_per_page_dict, output_dir_path, object
       out_filename = page.title.replace(" ", "_") + '.html'
       with open(out_filename, 'w') as f:
          f.write(page.render())
+
+def make_figcaptions(inventory_rows, col_enum, object_dict, entries=None):
+   # changes the figcapture parameter per object with the html for the object
+   if entries is None:
+      entries = len(inventory_rows)
+
+   for row in inventory_rows[1:entries]:
+      oid = row[col_enum.ID.value]
+      if len(oid) != 7:
+         continue 
+      if oid not in object_dict:
+         print(f'Error: {oid} in inventory sheet but not in object_dict')
+ 
+      obj_Desc = row[col_enum.Original_Description.value]
+      obj_Subj_style = row[col_enum.Subject_Style.value]
+      obj_Object_Type = row[col_enum.Object_Type.value]
+      obj_Creation_Date = row[col_enum.Creation_Date.value]
+      obj_Origin = row[col_enum.Origin.value]
+      obj_Medium = row[col_enum.Medium.value]
+      obj_Dimensions = row[col_enum.Dimensions.value]
+      obj_Provenance = row[col_enum.Provenance.value]
+      obj_Donor = row[col_enum.Donor.value]
+      obj_Date_of_Gift = row[col_enum.Date_of_Gift.value]
+
+      print(f'{oid} {obj_Subj_style=} {obj_Object_Type=} {obj_Desc}')
+
+   # test subject_style column - if in PEOPLE_IMAGE_TYPE_LIST check people_dict & get description, URL & relationship
+
+   # add title if object type is in TITLED_ARTWORK_TYPE_LIST:
+
+   # add style & description
+
+   # add creator
+
+   # add creation date
+
+   # add creator description
+
+   # add subject (person) description
+
+   # add narrative
+
+
