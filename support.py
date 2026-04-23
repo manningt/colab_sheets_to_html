@@ -95,25 +95,27 @@ def make_obj_dict(inventory_rows, col_enum, locations_dict, entries=None):
    entries += 1 #skip first row
    for row_num, row in enumerate(inventory_rows[1:entries]):
       oid = row[col_enum.ID.value]
-      desc = row[col_enum.Original_Description.value]
-      location = row[col_enum.Location.value]
       if len(oid) != 7:
          print(f'skipping row {row_num} due to invalid OID={oid}')
          continue
+
+      desc = row[col_enum.Original_Description.value]
       if len(desc) < 1:
          print(f'skipping row {row_num} due to no description')
          continue
-      alt = f'{oid} {desc}'
-      object_dict[oid] = [None, alt, None]
-      # append object to locations_dict
+
+      location = row[col_enum.Location.value]
       if location in locations_dict:
          locations_dict[location].append(oid)
       else:
-         print(f"{row[col_enum.Location.value]=} not in locations_dict for {oid}")
+         print(f"{location=} not in locations_dict for {oid}")
          if location in unrecognized_locations_dict:
             unrecognized_locations_dict[location].append(oid)
          else:
             unrecognized_locations_dict[location] = [oid]
+         continue
+      alt = f'{oid} {desc}'
+      object_dict[oid] = [None, alt, None]
    return object_dict, unrecognized_locations_dict
 
 def create_html_files(page_name_list, obj_per_page_dict, output_dir_path, object_dict):
@@ -148,7 +150,7 @@ def create_html_files(page_name_list, obj_per_page_dict, output_dir_path, object
       with open(out_filename, 'w') as f:
          f.write(page.render())
 
-def make_figcaptions(inventory_rows, col_enum, object_dict, entries=None):
+def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries=None):
    # changes the figcapture parameter per object with the html for the object
    if entries is None:
       entries = len(inventory_rows)
@@ -156,13 +158,18 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, entries=None):
    for row in inventory_rows[1:entries]:
       oid = row[col_enum.ID.value]
       if len(oid) != 7:
-         continue 
+         continue
       if oid not in object_dict:
          print(f'Error: {oid} in inventory sheet but not in object_dict')
  
-      obj_Desc = row[col_enum.Original_Description.value]
-      obj_Subj_style = row[col_enum.Subject_Style.value]
       obj_Object_Type = row[col_enum.Object_Type.value]
+      # if obj_Object_Type not in PEOPLE_IMAGE_TYPE_LIST and obj_Object_Type not in TITLED_ARTWORK_TYPE_LIST:
+      #    print(f'Skipping {oid}: invalid object type= {obj_Object_Type}')
+      #    continue
+
+      obj_Subj_style = row[col_enum.Subject_Style.value]
+
+      obj_Desc = row[col_enum.Original_Description.value]
       obj_Creation_Date = row[col_enum.Creation_Date.value]
       obj_Origin = row[col_enum.Origin.value]
       obj_Medium = row[col_enum.Medium.value]
@@ -171,22 +178,25 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, entries=None):
       obj_Donor = row[col_enum.Donor.value]
       obj_Date_of_Gift = row[col_enum.Date_of_Gift.value]
 
-      print(f'{oid} {obj_Subj_style=} {obj_Object_Type=} {obj_Desc}')
+      print(f'{oid} {obj_Object_Type=} {obj_Subj_style=} ')
 
-   # test subject_style column - if in PEOPLE_IMAGE_TYPE_LIST check people_dict & get description, URL & relationship
+      figcapt = ''
+      # test obj_Object_Type column - if in PEOPLE_IMAGE_TYPE_LIST check people_dict & get description, URL & relationship
+      if obj_Object_Type in PEOPLE_IMAGE_TYPE_LIST:
+         figcapt += obj_Subj_style
 
-   # add title if object type is in TITLED_ARTWORK_TYPE_LIST:
+      # add title if object type is in TITLED_ARTWORK_TYPE_LIST:
 
-   # add style & description
+      # add style & description
 
-   # add creator
+      # add creator
 
-   # add creation date
+      # add creation date
 
-   # add creator description
+      # add creator description
 
-   # add subject (person) description
+      # add subject (person) description
 
-   # add narrative
+      # add narrative
 
-
+      object_dict[OBJ_ARRAY_IDX_E.FIGCAPT.value] = figcapt
