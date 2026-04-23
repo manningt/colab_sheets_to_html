@@ -99,7 +99,7 @@ def make_obj_dict(inventory_rows, col_enum, locations_dict, entries=None):
          print(f'skipping row {row_num} due to invalid OID={oid}')
          continue
 
-      desc = row[col_enum.Original_Description.value]
+      desc = row[col_enum.Original_Description.value].strip()
       if len(desc) < 1:
          print(f'skipping row {row_num} due to no description')
          continue
@@ -114,7 +114,7 @@ def make_obj_dict(inventory_rows, col_enum, locations_dict, entries=None):
          else:
             unrecognized_locations_dict[location] = [oid]
          continue
-      alt = f'{oid} {desc}'
+      alt = f'{oid}: {desc}'
       object_dict[oid] = [None, alt, None]
    return object_dict, unrecognized_locations_dict
 
@@ -187,10 +187,10 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
 
       print(f'{oid} {obj_Object_Type=} {obj_Subj_style=} ')
 
-      figcapt = ''
+      figcapt_dict = {}
       # test obj_Object_Type column - if in PEOPLE_IMAGE_TYPE_LIST check people_dict & get description, URL & relationship
-      if obj_Object_Type in PEOPLE_IMAGE_TYPE_LIST:
-         figcapt += obj_Subj_style
+      if obj_Object_Type.lower().strip() in PEOPLE_IMAGE_TYPE_LIST:
+         figcapt_dict['subject'] = obj_Subj_style
 
       # add title if object type is in TITLED_ARTWORK_TYPE_LIST:
 
@@ -206,4 +206,4 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
 
       # add narrative
 
-      object_dict[OBJ_ARRAY_IDX_E.FIGCAPT.value] = figcapt
+      object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value] = figcapt_dict
