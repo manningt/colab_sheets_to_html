@@ -92,7 +92,8 @@ def make_obj_dict(inventory_rows, col_enum, locations_dict, entries=None):
    object_dict = {}
    if entries is None:
       entries = len(inventory_rows)
-   entries += 1 #skip first row
+   else:
+      entries += 1 #skip first row
    for row_num, row in enumerate(inventory_rows[1:entries]):
       oid = row[col_enum.ID.value]
       if len(oid) != 7:
@@ -142,7 +143,10 @@ def create_html_files(page_name_list, obj_per_page_dict, output_dir_path, object
                   with figure():
                      img(src=img_src, alt=img_alt, style="width:100%")
                      with figcaption():
-                        object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value]
+                        print(f'{object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value]}')
+                        p("example text")
+                        button("Dismiss")
+                        # p(object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value])
                         # a("Winthrop", href="https://en.wikipedia.org/wiki/Winthrop_Sargent")
                         # p(i("Judith's brother"))
          
@@ -161,7 +165,8 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
    # changes the figcapture parameter per object with the html for the object
    if entries is None:
       entries = len(inventory_rows)
-
+   else:
+      entries += 1 #skip first row
    for row in inventory_rows[1:entries]:
       oid = row[col_enum.ID.value]
       if len(oid) != 7:
@@ -185,7 +190,7 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
       obj_Donor = row[col_enum.Donor.value]
       obj_Date_of_Gift = row[col_enum.Date_of_Gift.value]
 
-      print(f'{oid} {obj_Object_Type=} {obj_Subj_style=} ')
+      # print(f'{oid} {obj_Object_Type=} {obj_Subj_style=} ')
 
       figcapt_dict = {}
       # test obj_Object_Type column - if in PEOPLE_IMAGE_TYPE_LIST check people_dict & get description, URL & relationship
