@@ -19,18 +19,22 @@ Here is an example caption:
 </span>
 ```
 # processing steps:
-1. generate supporting dictionaries: object_column_names_enum, location_list, people_dict, category_dict
-2. init object_location_array (per location array of objects)
-3. init object_category_array (per category array of objects)
-4. iterate through object sheet:
-    - check if missing; report and skip
-    - create object_list [{id: []}]
-    - add to object_dict:
+1. do Google authenication and open inventory spreadsheet
+2. generate supporting dictionaries: object_column_names_enum, location_list, people_dict, category_dict
+3. create object_dict and fill in object_location_dict (per location array of objectIDs)
+    - the object_dict uses the OID as the key, and has an array of items:
         - image URL
-        - alt text 
+        - alt text (this is filled from the Original_Description when creating key=OID in the obj_dict)
         - figcaption
-5. generate location pages:
-    -iterate through object_location_array
+    - the locations include 'missing' 'deaccessioned' 'on-loan', 'Cape Ann Museum' etc.
+    - a dictionary of unrecognized locations is also created, with an list of OIDs per unrecognized location
+    - a list of OID's in unrecognized locations
+4. find a thumbnail photo URL for each object by iterating through the object_dict
+5. generate the figure caption HTML using data in Object_Type, Subject_Style, etc columns.
+6. generate location pages:
+    -iterate through object_location_dict and populate doc using dominate library.
+
+## 
 
 # figure caption generation
 ## people:
@@ -61,3 +65,7 @@ Marriage_Date 8
 Marriage_Location 9
 ```
 The dict is {"Full_Name": [Description, RelationshipToJudith, URL]}
+
+## not people (china, glass, furniture, etc):
+* object_type
+
