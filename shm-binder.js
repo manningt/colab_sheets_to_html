@@ -13,9 +13,10 @@ function myNewFunctionPopUp(event) {
   const figure = event.target.closest('figure');
   const caption = figure.querySelector('figcaption');
   // TODO: add check for bogus caption
-  // if (caption) {
-  //   console.log(caption.innerHTML);
-  // }
+  if (caption == null) {
+    popup_html = "No figure caption text";
+  }
+  else popup_html = caption.innerHTML;
 
   const bodyRect = document.body.getBoundingClientRect(); // gets the page size
   // console.log("bodyRect.left: " + bodyRect.left + " -- bodyRect.right: " + bodyRect.right);
@@ -30,7 +31,7 @@ function myNewFunctionPopUp(event) {
   top = elemRect.top - bodyRect.top - (elemHeight / 1.5);
 
   var popup = document.getElementById("myPopup");
-  popup.innerHTML = caption.innerHTML
+  popup.innerHTML = popup_html;
 
   width = 360
   popup.style.width = width + "px";
@@ -46,7 +47,8 @@ function myNewFunctionPopUp(event) {
   else
     popup.style.top = top + "px";
 
-  const dismissBtn = document.createElement("button");
+  //popup.appendChild(document.createElement("br"));
+  var dismissBtn = document.createElement("button");
   dismissBtn.innerHTML = "Dismiss";
   dismissBtn.className = "dismiss-btn"; // Add CSS classes for styling
   dismissBtn.addEventListener("click", function () {
