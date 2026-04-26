@@ -150,8 +150,8 @@ def create_html_files(page_name_list, obj_per_page_dict, output_dir_path, object
                   with figure():
                      img(src=img_src, alt=img_alt, title=img_alt, style="width:100%", _class ="image-click")
                      with figcaption(_id="oidCaption"):
-                        for line in object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value]
-                           raw(object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value])
+                        for line in object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value]:
+                           raw(line)
                            br()
                          # print(f'{object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value]}')
                         # subject = object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value]['subject']
@@ -231,6 +231,6 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
          '',
          'Portrait cast on bronze Medallion (circular) Inscribed: "My Friend John Sargent. Paris IVLX M.D.CC.LLXX"',
          '',
-         '<a target="_blank" href="https://drive.google.com/file/d/1NHQ9LaVEm2rdY0YeGQXb0MYtgGsw45LE/view"<oid0006_A>/a>'
+         '<a target="_blank" href="https://drive.google.com/file/d/1NHQ9LaVEm2rdY0YeGQXb0MYtgGsw45LE/view">oid0001</a>'
       ]
 
