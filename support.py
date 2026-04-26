@@ -29,6 +29,11 @@ class OBJ_ARRAY_IDX_E(enum.Enum):
    ALT = 1
    FIGCAPT = 2
 
+class PEOPLE_ARRAY_IDX_E(enum.Enum): 
+   DESCRIPTION = 0
+   RELATIONSHIPTOJUDITH = 1
+   URL = 2
+
 def make_col_name_enum(worksheet):
   col_names = worksheet.row_values(1)
   col_names = [s.replace(' ', '_') for s in col_names]
@@ -141,14 +146,17 @@ def create_html_files(page_name_list, obj_per_page_dict, output_dir_path, object
                img_alt = object_dict[oid][OBJ_ARRAY_IDX_E.ALT.value]
                with div(_class ="column"):
                   with figure():
-                     img(src=img_src, alt=img_alt, style="width:100%")
-                     with figcaption():
-                        print(f'{object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value]}')
-                        p("example text")
-                        button("Dismiss")
-                        # p(object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value])
-                        # a("Winthrop", href="https://en.wikipedia.org/wiki/Winthrop_Sargent")
-                        # p(i("Judith's brother"))
+                     img(src=img_src, alt=img_alt, title=img_alt, style="width:100%", _class ="image-click")
+                     figcaption(object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value])
+                        # print(f'{object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value]}')
+                        # subject = object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value]['subject']
+                        # with p():
+                        #    "example text"
+                        #    br(subject)
+                        #    br(oid)
+                          # p(object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value])
+                           # a("Winthrop", href="https://en.wikipedia.org/wiki/Winthrop_Sargent")
+                           # p(i("Judith's brother"))
          
          html_page_list.append(doc)
 
@@ -174,13 +182,18 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
       if oid not in object_dict:
          print(f'Error: {oid} in inventory sheet but not in object_dict')
  
-      obj_Object_Type = row[col_enum.Object_Type.value]
-      # if obj_Object_Type not in PEOPLE_IMAGE_TYPE_LIST and obj_Object_Type not in TITLED_ARTWORK_TYPE_LIST:
+      # obj_Object_Type = row[col_enum.Object_Type.value]
+      # if obj_Object_Type in PEOPLE_IMAGE_TYPE_LIST:
+      #    persons_name = row[col_enum.Subject_Style.value]
+      #    if persons_name in people_dict:
+      #       if len(people_dict[persons_name][PEOPLE_ARRAY_IDX_E.URL.value] > 0:
+               
+      # elif obj_Object_Type in TITLED_ARTWORK_TYPE_LIST:
+         
       #    print(f'Skipping {oid}: invalid object type= {obj_Object_Type}')
       #    continue
 
       obj_Subj_style = row[col_enum.Subject_Style.value]
-
       obj_Desc = row[col_enum.Original_Description.value]
       obj_Creation_Date = row[col_enum.Creation_Date.value]
       obj_Origin = row[col_enum.Origin.value]
@@ -191,11 +204,6 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
       obj_Date_of_Gift = row[col_enum.Date_of_Gift.value]
 
       # print(f'{oid} {obj_Object_Type=} {obj_Subj_style=} ')
-
-      figcapt_dict = {}
-      # test obj_Object_Type column - if in PEOPLE_IMAGE_TYPE_LIST check people_dict & get description, URL & relationship
-      if obj_Object_Type.lower().strip() in PEOPLE_IMAGE_TYPE_LIST:
-         figcapt_dict['subject'] = obj_Subj_style
 
       # add title if object type is in TITLED_ARTWORK_TYPE_LIST:
 
@@ -211,4 +219,8 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
 
       # add narrative
 
-      object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value] = figcapt_dict
+      object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value] = \
+         '<a target="_blank" href="https://en.wikipedia.org/wiki/John_Singer_Sargent">Sargent, John Singer (1856-1925)</a>' +\
+         '<br>' +\
+         '<a target="_blank" href="https://en.wikipedia.org/wiki/Augustus_Saint-Gaudens">Augustus Saint-Gaudens (1848-1907)</a>'
+
