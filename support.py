@@ -11,6 +11,7 @@ except Exception as e: print(e)
 try:
    from dominate import document as dom_doc
    from dominate.tags import *
+   from dominate.util import raw   
 except Exception as e: print(e)
 
 from markdown import Markdown
@@ -140,15 +141,19 @@ def create_html_files(page_name_list, obj_per_page_dict, output_dir_path, object
          script(type='text/javascript', src='shm-binder.js')
          meta(name="viewport", content="width=device-width, initial-scale=1")
       with doc.body:
-         with div(page_name, _class ="page_title"):
+         with div(page_name, _class="page_title"):
+            span(_class ="popuptext", _id="myPopup")
             for oid in obj_per_page_dict[page_name]:
                img_src = object_dict[oid][OBJ_ARRAY_IDX_E.THUMBNAIL.value]
                img_alt = object_dict[oid][OBJ_ARRAY_IDX_E.ALT.value]
-               with div(_class ="column"):
+               with div(_class="column"):
                   with figure():
                      img(src=img_src, alt=img_alt, title=img_alt, style="width:100%", _class ="image-click")
-                     figcaption(object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value])
-                        # print(f'{object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value]}')
+                     with figcaption(_id="oidCaption"):
+                        for line in object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value]
+                           raw(object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value])
+                           br()
+                         # print(f'{object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value]}')
                         # subject = object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value]['subject']
                         # with p():
                         #    "example text"
@@ -219,8 +224,13 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
 
       # add narrative
 
-      object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value] = \
-         '<a target="_blank" href="https://en.wikipedia.org/wiki/John_Singer_Sargent">Sargent, John Singer (1856-1925)</a>' +\
-         '<br>' +\
-         '<a target="_blank" href="https://en.wikipedia.org/wiki/Augustus_Saint-Gaudens">Augustus Saint-Gaudens (1848-1907)</a>'
+      object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value] = [\
+         '<a target="_blank" href="https://en.wikipedia.org/wiki/John_Singer_Sargent">Sargent, John Singer (1856-1925)</a>',
+         '<a target="_blank" href="https://en.wikipedia.org/wiki/Augustus_Saint-Gaudens">Augustus Saint-Gaudens (1848-1907)</a> in 1880',
+         'Cast Bronze',
+         '',
+         'Portrait cast on bronze Medallion (circular) Inscribed: "My Friend John Sargent. Paris IVLX M.D.CC.LLXX"',
+         '',
+         '<a target="_blank" href="https://drive.google.com/file/d/1NHQ9LaVEm2rdY0YeGQXb0MYtgGsw45LE/view"<oid0006_A>/a>'
+      ]
 
