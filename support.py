@@ -102,7 +102,7 @@ def make_obj_dict(inventory_rows, col_enum, locations_dict, entries=None):
       entries += 1 #skip first row
    for row_num, row in enumerate(inventory_rows[1:entries]):
       oid = row[col_enum.ID.value]
-      if len(oid) != 7:
+      if oid[0:3].tolower != 'oid' or not oid[3:7].isnumeric():
          print(f'skipping row {row_num} due to invalid OID={oid}')
          continue
 
@@ -182,23 +182,13 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
       entries += 1 #skip first row
    for row in inventory_rows[1:entries]:
       oid = row[col_enum.ID.value]
-      if len(oid) != 7:
-         continue
       if oid not in object_dict:
          print(f'Error: {oid} in inventory sheet but not in object_dict')
+         continue
  
-      # obj_Object_Type = row[col_enum.Object_Type.value]
-      # if obj_Object_Type in PEOPLE_IMAGE_TYPE_LIST:
-      #    persons_name = row[col_enum.Subject_Style.value]
-      #    if persons_name in people_dict:
-      #       if len(people_dict[persons_name][PEOPLE_ARRAY_IDX_E.URL.value] > 0:
-               
-      # elif obj_Object_Type in TITLED_ARTWORK_TYPE_LIST:
-         
-      #    print(f'Skipping {oid}: invalid object type= {obj_Object_Type}')
-      #    continue
-
+      obj_Object_Type = row[col_enum.Object_Type.value]
       obj_Subj_style = row[col_enum.Subject_Style.value]
+      # print(f'{oid} {obj_Object_Type=} {obj_Subj_style=} ')
       obj_Desc = row[col_enum.Original_Description.value]
       obj_Creation_Date = row[col_enum.Creation_Date.value]
       obj_Origin = row[col_enum.Origin.value]
@@ -208,9 +198,26 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
       obj_Donor = row[col_enum.Donor.value]
       obj_Date_of_Gift = row[col_enum.Date_of_Gift.value]
 
-      # print(f'{oid} {obj_Object_Type=} {obj_Subj_style=} ')
-
+      figcapt_list = []
+      if obj_Object_Type in PEOPLE_IMAGE_TYPE_LIST:
+         persons_name = row[col_enum.Subject_Style.value]
+         if persons_name in people_dict:
+            persons_url = people_dict[persons_name][PEOPLE_ARRAY_IDX_E.URL.value]
+            print(f'{persons_name}: url_type={type(persons_url)} url={persons_url}')
+            persons_desc = people_dict[persons_name][PEOPLE_ARRAY_IDX_E.DESCRIPTION.value]
+            persons_to_jsm = people_dict[persons_name][PEOPLE_ARRAY_IDX_E.RELATIONSHIPTOJUDITH.value]
+            if len(persons_url) > 0:
+               figcapt_list.append(f'<a target="_blank" href="{persons_url}>{persons_name}</a>')
+         else:
+            figcapt_list.append(persons_name)             
       # add title if object type is in TITLED_ARTWORK_TYPE_LIST:
+      elif obj_Object_Type in TITLED_ARTWORK_TYPE_LIST:
+         figcapt_list.append(f'<b><i>{obj_Subj_style}</i></b>')  #obj_Subj_style is the artwork title
+      else:
+         figcapt_list.append(obj_Object_Type)
+
+      object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value] = figcapt_list
+
 
       # add style & description
 
@@ -224,6 +231,7 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
 
       # add narrative
 
+'''
       object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value] = [\
          '<a target="_blank" href="https://en.wikipedia.org/wiki/John_Singer_Sargent">Sargent, John Singer (1856-1925)</a>',
          '<a target="_blank" href="https://en.wikipedia.org/wiki/Augustus_Saint-Gaudens">Augustus Saint-Gaudens (1848-1907)</a> in 1880',
@@ -233,4 +241,4 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
          '',
          '<a target="_blank" href="https://drive.google.com/file/d/1NHQ9LaVEm2rdY0YeGQXb0MYtgGsw45LE/view">oid0001</a>'
       ]
-
+'''
