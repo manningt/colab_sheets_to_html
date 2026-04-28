@@ -1,5 +1,6 @@
 * {
   box-sizing: border-box;
+  font-family: Arial;
 }
 
 #oidCaption {
@@ -12,17 +13,24 @@
   padding-bottom: 0px;
   text-align: center;
   width: 100%;
-  /* display:block; */
   display: block;
   /* float:left; */
 }
 
+/* figure does not use body css */
 body {
   margin: 0;
   font-family: Arial;
   background-color: #36393E;
   color: white;
   min-width: 600px
+}
+
+figure {
+  margin: 0;
+  display: flex;
+  background-color: #36393E;
+  color: white;
 }
 
 a:link {
