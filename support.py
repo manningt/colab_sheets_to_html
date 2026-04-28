@@ -26,7 +26,7 @@ CATEGORY_TYPE_LIST = ["Fine_Art", "Silver", "Ceramics", "Glass", "Metals", "Furn
 IGNORE_OBJECT_LIST = ["returned", "deaccessioned", "unassigned"]
 
 class OBJ_ARRAY_IDX_E(enum.Enum): 
-   THUMBNAIL = 0
+   IMG_FILE_ID = 0
    ALT = 1
    FIGCAPT = 2
 
@@ -83,7 +83,7 @@ def get_image_url(object_dict, images_folder):
          fid = xattr.getxattr(img_filename, "user.drive.id").decode('utf-8') #linux
          # fid = subprocess.getoutput(f"xattr -p 'user.drive.id' '{img_filename}'") #macos
          if len(fid) == 33:
-            object_dict[oid][OBJ_ARRAY_IDX_E.THUMBNAIL.value] = f'https://drive.google.com/a/sargenthouse.org/thumbnail?id={fid}'
+            object_dict[oid][OBJ_ARRAY_IDX_E.IMG_FILE_ID.value] = fid
          else:
             print(f"Invalid fid: {fid} for {oid}")
             oid_with_invalid_file_id_list.append(oid)
@@ -144,7 +144,8 @@ def create_html_files(page_name_list, obj_per_page_dict, output_dir_path, object
          div(f'{page_name} -  Click on image for more info on the object.', _class="page_title")
          span(_class ="popuptext", _id="myPopup")
          for oid in obj_per_page_dict[page_name]:
-            img_src = object_dict[oid][OBJ_ARRAY_IDX_E.THUMBNAIL.value]
+            file_id = object_dict[oid][OBJ_ARRAY_IDX_E.IMG_FILE_ID.value]
+            img_src = f'https://drive.google.com/a/sargenthouse.org/thumbnail?id={file_id}'
             img_alt = object_dict[oid][OBJ_ARRAY_IDX_E.ALT.value]
             with div(_class="column"):
                with figure():
@@ -208,6 +209,10 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
          figcapt_list.append(f'<b><i>{obj_Subj_style}</i></b>')  #obj_Subj_style is the artwork title
       else:
          figcapt_list.append(obj_Object_Type)
+
+      file_id = object_dict[oid][OBJ_ARRAY_IDX_E.IMG_FILE_ID.value]
+      large_img_src = f'https://drive.google.com/file/d/{file_id}'
+      figcapt_list.append(f'<a target="_blank" href="{large_img_src}">{oid}</a>')
 
       object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value] = figcapt_list
 
