@@ -28,7 +28,8 @@ function myNewFunctionPopUp(event) {
 
   // finds the top for the popup (top of the image, and then a little bit from the popup height so it's above the image)
   const elemHeight = event.target.clientHeight;
-  top = elemRect.top - bodyRect.top - (elemHeight / 1.5);
+  figTop = elemRect.top - bodyRect.top - (elemHeight / 1.5);
+  console.log({ figTop, elemRect, bodyRect, elemHeight })
 
   var popup = document.getElementById("myPopup");
   popup.innerHTML = popup_html;
@@ -42,10 +43,10 @@ function myNewFunctionPopUp(event) {
   else
     popup.style.left = left + "px";
 
-  if (top < 10)
+  if (figTop < 10)
     popup.style.top = 10 + "px";
   else
-    popup.style.top = top + "px";
+    popup.style.top = figTop + "px";
 
   //popup.appendChild(document.createElement("br"));
   var dismissBtn = document.createElement("button");
