@@ -141,27 +141,18 @@ def create_html_files(page_name_list, obj_per_page_dict, output_dir_path, object
          script(type='text/javascript', src='shm-binder.js')
          meta(name="viewport", content="width=device-width, initial-scale=1")
       with doc.body:
-         with div(page_name, _class="page_title"):
-            span(_class ="popuptext", _id="myPopup")
-            for oid in obj_per_page_dict[page_name]:
-               img_src = object_dict[oid][OBJ_ARRAY_IDX_E.THUMBNAIL.value]
-               img_alt = object_dict[oid][OBJ_ARRAY_IDX_E.ALT.value]
-               with div(_class="column"):
-                  with figure():
-                     img(src=img_src, alt=img_alt, title=img_alt, style="width:100%", _class ="image-click")
-                     with figcaption(_id="oidCaption"):
-                        for line in object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value]:
-                           raw(line)
-                           br()
-                         # print(f'{object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value]}')
-                        # subject = object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value]['subject']
-                        # with p():
-                        #    "example text"
-                        #    br(subject)
-                        #    br(oid)
-                          # p(object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value])
-                           # a("Winthrop", href="https://en.wikipedia.org/wiki/Winthrop_Sargent")
-                           # p(i("Judith's brother"))
+         div(f'{page_name} -  Click on image for more info on the object.', _class="page_title")
+         span(_class ="popuptext", _id="myPopup")
+         for oid in obj_per_page_dict[page_name]:
+            img_src = object_dict[oid][OBJ_ARRAY_IDX_E.THUMBNAIL.value]
+            img_alt = object_dict[oid][OBJ_ARRAY_IDX_E.ALT.value]
+            with div(_class="column"):
+               with figure():
+                  img(src=img_src, alt=img_alt, title=img_alt, style="width:100%", _class ="image-click")
+                  with figcaption(_id="oidCaption"):
+                     for line in object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value]:
+                        raw(line)
+                        br()
          
          html_page_list.append(doc)
 
