@@ -68,7 +68,7 @@ def get_image_url(object_dict, images_folder):
       img_filename = None
       if len(files) == 0:
          oid_with_no_image_files_list.append(oid)
-         print(f"No files found for {oid}")
+         # print(f"No files found for {oid}")
       elif len(files) == 1:
          img_filename = files[0]
       else:
@@ -102,7 +102,7 @@ def make_obj_dict(inventory_rows, col_enum, locations_dict, entries=None):
       entries += 1 #skip first row
    for row_num, row in enumerate(inventory_rows[1:entries]):
       oid = row[col_enum.ID.value]
-      if oid[0:3].tolower != 'oid' or not oid[3:7].isnumeric():
+      if oid[0:3].lower() != 'oid' or not oid[3:7].isnumeric():
          print(f'skipping row {row_num} due to invalid OID={oid}')
          continue
 
@@ -199,17 +199,19 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
       obj_Date_of_Gift = row[col_enum.Date_of_Gift.value]
 
       figcapt_list = []
-      if obj_Object_Type in PEOPLE_IMAGE_TYPE_LIST:
-         persons_name = row[col_enum.Subject_Style.value]
+      if obj_Object_Type.lower() in PEOPLE_IMAGE_TYPE_LIST:
+         persons_name = obj_Subj_style # if a person, the subj_style column has the person's name
+         name_has_url = False
          if persons_name in people_dict:
             persons_url = people_dict[persons_name][PEOPLE_ARRAY_IDX_E.URL.value]
-            print(f'{persons_name}: url_type={type(persons_url)} url={persons_url}')
             persons_desc = people_dict[persons_name][PEOPLE_ARRAY_IDX_E.DESCRIPTION.value]
             persons_to_jsm = people_dict[persons_name][PEOPLE_ARRAY_IDX_E.RELATIONSHIPTOJUDITH.value]
             if len(persons_url) > 0:
-               figcapt_list.append(f'<a target="_blank" href="{persons_url}>{persons_name}</a>')
-         else:
+               figcapt_list.append(f'<a target="_blank" href="{persons_url}">{persons_name}</a>')
+               name_has_url = True
+         if not name_has_url:
             figcapt_list.append(persons_name)             
+
       # add title if object type is in TITLED_ARTWORK_TYPE_LIST:
       elif obj_Object_Type in TITLED_ARTWORK_TYPE_LIST:
          figcapt_list.append(f'<b><i>{obj_Subj_style}</i></b>')  #obj_Subj_style is the artwork title
