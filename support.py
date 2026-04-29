@@ -141,7 +141,7 @@ def create_html_files(page_name_list, obj_per_page_dict, output_dir_path, object
          script(type='text/javascript', src='shm-binder.js')
          meta(name="viewport", content="width=device-width, initial-scale=1")
       with doc.body:
-         div(f'{page_name} -  Click on image for more info on the object.', _class="page_title")
+         div(f'{page_name} -  Click on an image for more info on the object.', _class="page_title")
          span(_class ="popuptext", _id="myPopup")
          for oid in obj_per_page_dict[page_name]:
             file_id = object_dict[oid][OBJ_ARRAY_IDX_E.IMG_FILE_ID.value]
@@ -183,12 +183,16 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
       # print(f'{oid} {obj_Object_Type=} {obj_Subj_style=} ')
       obj_Desc = row[col_enum.Original_Description.value]
       obj_Creation_Date = row[col_enum.Creation_Date.value]
+      obj_Creator = row[col_enum.Creator.value]
       obj_Origin = row[col_enum.Origin.value]
       obj_Medium = row[col_enum.Medium.value]
       obj_Dimensions = row[col_enum.Dimensions.value]
       obj_Provenance = row[col_enum.Provenance.value]
       obj_Donor = row[col_enum.Donor.value]
       obj_Date_of_Gift = row[col_enum.Date_of_Gift.value]
+
+      persons_desc = None
+      persons_to_jsm = None
 
       figcapt_list = []
       if obj_Object_Type.lower() in PEOPLE_IMAGE_TYPE_LIST:
@@ -202,7 +206,11 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
                figcapt_list.append(f'<a target="_blank" href="{persons_url}">{persons_name}</a>')
                name_has_url = True
          if not name_has_url:
-            figcapt_list.append(persons_name)             
+            figcapt_list.append(persons_name)
+
+      # add relationship to Judith
+      if persons_to_jsm:
+         figcapt_list.append(f'<i>{persons_to_jsm}</i>')
 
       # add title if object type is in TITLED_ARTWORK_TYPE_LIST:
       elif obj_Object_Type in TITLED_ARTWORK_TYPE_LIST:
@@ -210,25 +218,41 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
       else:
          figcapt_list.append(obj_Object_Type)
 
-      file_id = object_dict[oid][OBJ_ARRAY_IDX_E.IMG_FILE_ID.value]
-      large_img_src = f'https://drive.google.com/file/d/{file_id}'
-      figcapt_list.append(f'<a target="_blank" href="{large_img_src}">{oid}</a>')
+      # add style
 
-      object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value] = figcapt_list
+      # add media
 
-
-      # add style & description
-
-      # add creator
-
-      # add creation date
+      # add creator & creation date
+      if not obj_Creation_Date:
+         obj_Creation_Date = 'Date unknown'
+      creator_has_url = False
+      if obj_Creator in people_dict:
+         creator_url = people_dict[obj_Creator][PEOPLE_ARRAY_IDX_E.URL.value]
+         creator_desc = people_dict[obj_Creator][PEOPLE_ARRAY_IDX_E.DESCRIPTION.value]
+         if creator_url:
+            figcapt_list.append(f'by <a target="_blank" href="{obj_Creator}">{obj_Creator} in {obj_Creation_Date}</a>')
+            creator_has_url = True
+      if not creator_has_url:
+         figcapt_list.append(f'by {obj_Creator} in {obj_Creation_Date}')
 
       # add creator description
+      if creator_desc:
+         figcapt_list.append(f'{obj_Creator.split(",")[0]} {creator_desc}')
 
       # add subject (person) description
+      if persons_desc:
+         figcapt_list.append(f'<br>{persons_name.split(",")[0]} {persons_desc}')
 
       # add narrative
 
+      # add donor and donation date
+
+      # add Object ID
+      file_id = object_dict[oid][OBJ_ARRAY_IDX_E.IMG_FILE_ID.value]
+      large_img_src = f'https://drive.google.com/file/d/{file_id}'
+      figcapt_list.append(f'<br><a target="_blank" href="{large_img_src}">{oid}</a>')
+
+      object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value] = figcapt_list
 '''
       object_dict[oid][OBJ_ARRAY_IDX_E.FIGCAPT.value] = [\
          '<a target="_blank" href="https://en.wikipedia.org/wiki/John_Singer_Sargent">Sargent, John Singer (1856-1925)</a>',
