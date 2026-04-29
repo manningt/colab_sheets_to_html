@@ -27,9 +27,10 @@ function myNewFunctionPopUp(event) {
   const left = (elemRect.left - bodyRect.left) + (elemRect.right - elemRect.left) / 2; // finds the left offset for the popup (left of the image, then position over the center of the image)
 
   // finds the top for the popup (top of the image, and then a little bit from the popup height so it's above the image)
-  const elemHeight = event.target.clientHeight;
-  figTop = elemRect.top - bodyRect.top - (elemHeight / 1.5);
-  console.log({ figTop, elemRect, bodyRect, elemHeight })
+  // const elemHeight = event.target.clientHeight;
+  //figTop is the top of the element (figure/image) that was clicked on
+  figTop = elemRect.top - bodyRect.top - 20 //(elemHeight / 1.5);
+  // console.log({ figTop, elemRect, bodyRect, elemHeight })
 
   var popup = document.getElementById("myPopup");
   popup.innerHTML = popup_html;
