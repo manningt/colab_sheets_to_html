@@ -213,39 +213,48 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
          figcapt_list.append(f'<i>{persons_to_jsm}</i>')
 
       # add title if object type is in TITLED_ARTWORK_TYPE_LIST:
-      elif obj_Object_Type in TITLED_ARTWORK_TYPE_LIST:
+      if obj_Object_Type in TITLED_ARTWORK_TYPE_LIST:
          figcapt_list.append(f'<b><i>{obj_Subj_style}</i></b>')  #obj_Subj_style is the artwork title
-      else:
+      # only put object type if NOT a portrait, minature, etc; persons_name will be populated in so
+      elif not persons_name:
          figcapt_list.append(obj_Object_Type)
 
       # add style
 
-      # add media
+      # add medium
 
       # add creator & creation date
-      if not obj_Creation_Date:
+      if not obj_Creation_Date or 'unknown' in obj_Creation_Date.lower():
          obj_Creation_Date = 'Date unknown'
+      if not obj_Creator or 'unknown' in obj_Creator.lower():
+         obj_Creator = 'Unknown creator'
       creator_has_url = False
       if obj_Creator in people_dict:
          creator_url = people_dict[obj_Creator][PEOPLE_ARRAY_IDX_E.URL.value]
          creator_desc = people_dict[obj_Creator][PEOPLE_ARRAY_IDX_E.DESCRIPTION.value]
          if creator_url:
-            figcapt_list.append(f'by <a target="_blank" href="{obj_Creator}">{obj_Creator} in {obj_Creation_Date}</a>')
+            figcapt_list.append(f'by <a target="_blank" href="{obj_Creator}">{obj_Creator}</a> in {obj_Creation_Date}')
             creator_has_url = True
       if not creator_has_url:
          figcapt_list.append(f'by {obj_Creator} in {obj_Creation_Date}')
 
       # add creator description
       if creator_desc:
-         figcapt_list.append(f'{obj_Creator.split(",")[0]} {creator_desc}')
+         figcapt_list.append(f'Creator {creator_desc}')
 
       # add subject (person) description
       if persons_desc:
-         figcapt_list.append(f'<br>{persons_name.split(",")[0]} {persons_desc}')
+         figcapt_list.append(f'<br>Subject {persons_desc}')
 
       # add narrative
 
       # add donor and donation date
+      if not obj_Date_of_Gift:
+         obj_Date_of_Gift = 'Date unknown'
+
+      if not obj_Donor:
+         obj_Donor = 'unknown'
+      figcapt_list.append(f'<br>Donated by {obj_Donor} on {obj_Date_of_Gift}')
 
       # add Object ID
       file_id = object_dict[oid][OBJ_ARRAY_IDX_E.IMG_FILE_ID.value]
