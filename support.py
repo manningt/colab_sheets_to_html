@@ -216,7 +216,7 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
       if obj_Object_Type in TITLED_ARTWORK_TYPE_LIST:
          figcapt_list.append(f'<b><i>{obj_Subj_style}</i></b>')  #obj_Subj_style is the artwork title
       # only put object type if NOT a portrait, minature, etc; persons_name will be populated in so
-      elif not persons_name:
+      elif not obj_Object_Type:
          figcapt_list.append(obj_Object_Type)
 
       # add style
@@ -224,12 +224,13 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
       # add medium
 
       # add creator & creation date
+      creator_has_url = False
+      creator_desc = None
       if not obj_Creation_Date or 'unknown' in obj_Creation_Date.lower():
          obj_Creation_Date = 'Date unknown'
       if not obj_Creator or 'unknown' in obj_Creator.lower():
          obj_Creator = 'Unknown creator'
-      creator_has_url = False
-      if obj_Creator in people_dict:
+      elif obj_Creator in people_dict:
          creator_url = people_dict[obj_Creator][PEOPLE_ARRAY_IDX_E.URL.value]
          creator_desc = people_dict[obj_Creator][PEOPLE_ARRAY_IDX_E.DESCRIPTION.value]
          if creator_url:
