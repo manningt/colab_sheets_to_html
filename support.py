@@ -251,12 +251,12 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
       # add narrative
 
       # add donor and donation date
-      if not obj_Date_of_Gift:
-         obj_Date_of_Gift = 'Date unknown'
-
-      if not obj_Donor:
-         obj_Donor = 'unknown'
-      figcapt_list.append(f'<br>Donated by {obj_Donor} on {obj_Date_of_Gift}')
+      if not obj_Donor and not obj_Date_of_Gift:
+         figcapt_list.append(f'<br>Unknown donor and donation date')
+      elif obj_Donor and not obj_Date_of_Gift:
+         figcapt_list.append(f'<br>Donated by {obj_Donor}; donation date unknown')
+      else:
+         figcapt_list.append(f'<br>Donated by {obj_Donor} in {obj_Date_of_Gift}')
 
       # add Object ID
       file_id = object_dict[oid][OBJ_ARRAY_IDX_E.IMG_FILE_ID.value]
