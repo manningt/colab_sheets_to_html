@@ -181,13 +181,13 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
       obj_Object_Type = row[col_enum.Object_Type.value]
       obj_Subj_style = row[col_enum.Subject_Style.value]
       # print(f'{oid} {obj_Object_Type=} {obj_Subj_style=} ')
-      obj_Desc = row[col_enum.Original_Description.value]
+      obj_Narrative = row[col_enum.Narrative.value]
       obj_Creation_Date = row[col_enum.Creation_Date.value]
       obj_Creator = row[col_enum.Creator.value]
-      obj_Origin = row[col_enum.Origin.value]
       obj_Medium = row[col_enum.Medium.value]
-      obj_Dimensions = row[col_enum.Dimensions.value]
-      obj_Provenance = row[col_enum.Provenance.value]
+      # obj_Origin = row[col_enum.Origin.value]
+      # obj_Dimensions = row[col_enum.Dimensions.value]
+      # obj_Provenance = row[col_enum.Provenance.value]
       obj_Donor = row[col_enum.Donor.value]
       obj_Date_of_Gift = row[col_enum.Date_of_Gift.value]
 
@@ -240,7 +240,6 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
       if not creator_has_url:
          figcapt_list.append(f'by {obj_Creator} in {obj_Creation_Date}')
 
-      # add creator description
       if creator_desc:
          figcapt_list.append(f'Creator {creator_desc}')
 
@@ -248,7 +247,8 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
       if persons_desc:
          figcapt_list.append(f'<br>Subject {persons_desc}')
 
-      # add narrative
+      if obj_Narrative:
+         figcapt_list.append(f'<br>{obj_Narrative}')
 
       # add donor and donation date
       if not obj_Donor and not obj_Date_of_Gift:
