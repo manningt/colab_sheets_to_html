@@ -221,7 +221,8 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
 
       # add style
 
-      # add medium
+      if obj_Medium:
+         figcapt_list.append(obj_Medium)
 
       # add creator & creation date
       creator_has_url = False
