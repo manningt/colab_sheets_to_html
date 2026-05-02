@@ -88,6 +88,10 @@ def get_image_url(object_dict, images_folder):
             print(f"Invalid fid: {fid} for {oid}")
             oid_with_invalid_file_id_list.append(oid)
 
+   # if no picture was found, set the File ID to 'NoPicture.png' which is SHM-Interns > ObjectPhotos
+   if not object_dict[oid][OBJ_ARRAY_IDX_E.IMG_FILE_ID.value]:
+      object_dict[oid][OBJ_ARRAY_IDX_E.IMG_FILE_ID.value] = '1etlGui8ZKcA64OqjKcaKY_lAdFy5WbON'
+
    return oid_with_no_image_files_list, oid_with_invalid_file_id_list
 
 def make_obj_dict(inventory_rows, col_enum, locations_dict, entries=None):
@@ -195,7 +199,9 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
       persons_to_jsm = None
 
       figcapt_list = []
+      is_person_or_titled_artwork = False
       if obj_Object_Type.lower() in PEOPLE_IMAGE_TYPE_LIST:
+         is_person_or_titled_artwork = True
          persons_name = obj_Subj_style # if a person, the subj_style column has the person's name
          name_has_url = False
          if persons_name in people_dict:
@@ -214,9 +220,10 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
 
       # add title if object type is in TITLED_ARTWORK_TYPE_LIST:
       if obj_Object_Type in TITLED_ARTWORK_TYPE_LIST:
+         is_person_or_titled_artwork = True
          figcapt_list.append(f'<b><i>{obj_Subj_style}</i></b>')  #obj_Subj_style is the artwork title
       # only put object type if NOT a portrait, minature, etc; persons_name will be populated in so
-      elif not obj_Object_Type:
+      elif not is_person_or_titled_artwork:
          figcapt_list.append(obj_Object_Type)
 
       # add style
@@ -228,9 +235,9 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
       creator_has_url = False
       creator_desc = None
       if not obj_Creation_Date or 'unknown' in obj_Creation_Date.lower():
-         obj_Creation_Date = 'Date unknown'
+         obj_Creation_Date = 'unknown year'
       if not obj_Creator or 'unknown' in obj_Creator.lower():
-         obj_Creator = 'Unknown creator'
+         obj_Creator = 'an unknown creator'
       elif obj_Creator in people_dict:
          creator_url = people_dict[obj_Creator][PEOPLE_ARRAY_IDX_E.URL.value]
          creator_desc = people_dict[obj_Creator][PEOPLE_ARRAY_IDX_E.DESCRIPTION.value]
