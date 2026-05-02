@@ -57,6 +57,11 @@ def make_people_dict(worksheet):
 def get_image_url(object_dict, images_folder):
    # fills in the thumbnail image parameter for each object
    #Drive foldername convention: 0000-FineArts, 0500-Furniture, 0700-Textiles, etc
+
+   # get file ID (fid) of a PNG used if no object picture is found ('NoPicture.png' which is SHM-Interns > ObjectPhotos)
+   files = glob.glob(os.path.join(images_folder, f"NoPicture.png"), recursive=False)
+   no_picture_fid = xattr.getxattr(files[0], "user.drive.id").decode('utf-8')
+
    oid_with_no_image_files_list = []
    oid_with_invalid_file_id_list = []
    for oid in object_dict:
@@ -88,9 +93,9 @@ def get_image_url(object_dict, images_folder):
             print(f"Invalid fid: {fid} for {oid}")
             oid_with_invalid_file_id_list.append(oid)
 
-   # if no picture was found, set the File ID to 'NoPicture.png' which is SHM-Interns > ObjectPhotos
-   if not object_dict[oid][OBJ_ARRAY_IDX_E.IMG_FILE_ID.value]:
-      object_dict[oid][OBJ_ARRAY_IDX_E.IMG_FILE_ID.value] = '1etlGui8ZKcA64OqjKcaKY_lAdFy5WbON'
+        # if no image pic was found:
+      if not object_dict[oid][OBJ_ARRAY_IDX_E.IMG_FILE_ID.value]:
+         object_dict[oid][OBJ_ARRAY_IDX_E.IMG_FILE_ID.value] = no_picture_fid
 
    return oid_with_no_image_files_list, oid_with_invalid_file_id_list
 
@@ -226,10 +231,12 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
       elif not is_person_or_titled_artwork:
          figcapt_list.append(obj_Object_Type)
 
-      # add style
-
+      # add style and medium
       if obj_Medium:
-         figcapt_list.append(obj_Medium)
+         if is_person_or_titled_artwork or not obj_Subj_style:
+            figcapt_list.append(obj_Medium)
+         else:
+            figcapt_list.append(f'{obj_Medium}, {obj_Subj_style}')
 
       # add creator & creation date
       creator_has_url = False
