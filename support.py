@@ -68,7 +68,7 @@ def get_image_url(object_dict, images_folder):
       # how much more efficient is it to have the xxxx-category foldername in the search?
       # search_path = f'{image_dir}/Object-Photos/0000-Fine_Art/oid0028_C*.*'
       # search_path = f'{image_dir}/Object-Photos/*/{oid}*.*'
-      search_pattern = os.path.join(images_folder, f"*/{oid}*.*")
+      search_pattern = os.path.join(images_folder, f"**/{oid}*.*")
       files = glob.glob(search_pattern, recursive=True)
       img_filename = None
       if len(files) == 0:
