@@ -81,8 +81,11 @@ def get_image_url(object_dict, images_folder):
          for f in files:
             if "detail" not in f:
                non_detail_files.append(f)
-         img_filename = non_detail_files[0]
-         if len(non_detail_files) > 1:
+         if len(non_detail_files) == 0:
+            print(f'Error finding img file: {files}')
+         elif len(non_detail_files) == 1:
+            img_filename = non_detail_files[0]
+         else:
             print(f"Multiple images for {oid}")
       if img_filename:
          fid = xattr.getxattr(img_filename, "user.drive.id").decode('utf-8') #linux
