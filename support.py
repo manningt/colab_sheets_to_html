@@ -260,14 +260,14 @@ def make_figcaptions(inventory_rows, col_enum, object_dict, people_dict, entries
          figcapt_list.append(f'by {obj_Creator} in {obj_Creation_Date}')
 
       if creator_desc:
-         figcapt_list.append(f'Creator {creator_desc}')
+         figcapt_list.append(f'Creator {Markdown.convert(creator_desc)}')
 
       # add subject (person) description
       if persons_desc:
-         figcapt_list.append(f'<br>Subject {persons_desc}')
+         figcapt_list.append(f'<br>Subject {Markdown.convert(persons_desc)}')
 
       if obj_Narrative:
-         figcapt_list.append(f'<br>{obj_Narrative}')
+         figcapt_list.append(f'<br>{Markdown.convert(obj_Narrative)}')
 
       # add donor and donation date
       if not obj_Donor and not obj_Date_of_Gift:
