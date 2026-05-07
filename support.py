@@ -124,6 +124,8 @@ def make_obj_dict(inventory_rows, col_enum, locations_dict, entries=None):
          continue
 
       location = row[col_enum.Location.value]
+      if not location:
+         location = "Unknown"
       if location in locations_dict:
          locations_dict[location].append(oid)
       else:
