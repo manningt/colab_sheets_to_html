@@ -2,6 +2,7 @@
 These functions are intended to be called from a colab project.
 The spreadsheet object is a google sheet.
 '''
+import collections
 import enum
 import glob
 import os
@@ -22,8 +23,6 @@ TITLED_ARTWORK_TYPE_LIST = ["painting", "watercolor", "lithograph", "sculpture",
 CATEGORY_TYPE_LIST = ["Fine_Art", "Silver", "Ceramics", "Glass", "Metals", "Furniture", \
                       "Textiles", "Accessories", "Adornments", "Document_Artifacts", \
                       "Needlework", "Books", "Not_In_Collection", "On_Loan"]
-
-IGNORE_OBJECT_LIST = ["returned", "deaccessioned", "unassigned"]
 
 class OBJ_ARRAY_IDX_E(enum.Enum): 
    IMG_FILE_ID = 0
@@ -102,16 +101,35 @@ def get_image_url(object_dict, images_folder):
 
    return oid_with_no_image_files_list, oid_with_invalid_file_id_list
 
-def make_obj_dict(inventory_rows, col_enum, locations_dict, entries=None):
-   #example object_dict = {"oid0028_C":[None,None,None], "oid1300":[None,None,None]}   # objject_dict = 
-   # fills in 2nd parameter in array (alt)
-   # as well as creating a list of objects per location and category
+def make_obj_dict(inventory_rows, col_enum, locations_list, location_year, entries=None):
+   #example object_dict = {"oid0028_C":[None,None,None], "oid1300":[None,None,None]} 
+   # this function fills in 2nd entry in array, which is the 'alt' parameter for the html image
+   # other functions fill in the 1st & 3rd array entry
+   # this function returns:
+   #   - the object_dict
+   #   - a dict of objects per location (the location has a year argument)
+   #   - a dict of unrecognized locations, with objects in those locations.  This is used to correct the spreadsheet
+
+   location_column = None
+   for column_enum in col_enum:
+      if column_enum.name.startswith(location_year):
+         location_column = column_enum.value
+         break
+   if not location_column:
+      print(f'Error: a column with a location year of {location_year} not found')
+      return {}, {}, {}
+
+   # locations_list = [location.replace(' ', '_') for location in locations_list]
+   locations_dict = dict.fromkeys(locations_list) # a list of objects per location
+   locations_dict = {key: [] for key in locations_dict}
+
    unrecognized_locations_dict = {}
    object_dict = {}
    if entries is None:
       entries = len(inventory_rows)
    else:
       entries += 1 #skip first row
+
    for row_num, row in enumerate(inventory_rows[1:entries]):
       oid = row[col_enum.ID.value]
       if oid[0:3].lower() != 'oid' or not oid[3:7].isnumeric():
@@ -123,7 +141,7 @@ def make_obj_dict(inventory_rows, col_enum, locations_dict, entries=None):
          print(f'skipping row {row_num} due to no description')
          continue
 
-      location = row[col_enum.Location.value]
+      location = row[location_column]
       if not location:
          location = "Unknown"
       if location in locations_dict:
@@ -137,7 +155,7 @@ def make_obj_dict(inventory_rows, col_enum, locations_dict, entries=None):
          continue
       alt = f'{oid}: {desc}'
       object_dict[oid] = [None, alt, None]
-   return object_dict, unrecognized_locations_dict
+   return object_dict, locations_dict, unrecognized_locations_dict
 
 def create_html_files(page_name_list, obj_per_page_dict, output_dir_path, object_dict):
   # create a list of docs, one for each item in page_name_list:
