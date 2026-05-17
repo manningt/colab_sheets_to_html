@@ -112,7 +112,7 @@ def make_obj_dict(inventory_rows, col_enum, locations_list, location_year, entri
 
    location_column = None
    for column_enum in col_enum:
-      if column_enum.name.startswith(location_year):
+      if column_enum.name.startswith(location_year) and column_enum.name.tolower().endswith("location"):
          location_column = column_enum.value
          break
    if not location_column:
@@ -133,12 +133,12 @@ def make_obj_dict(inventory_rows, col_enum, locations_list, location_year, entri
    for row_num, row in enumerate(inventory_rows[1:entries]):
       oid = row[col_enum.ID.value]
       if oid[0:3].lower() != 'oid' or not oid[3:7].isnumeric():
-         print(f'skipping row {row_num} due to invalid OID={oid}')
+         print(f'skipping row {row_num+2} due to invalid OID={oid}')
          continue
 
       desc = row[col_enum.Original_Description.value].strip()
       if len(desc) < 1:
-         print(f'skipping row {row_num} due to no description')
+         print(f'skipping row {row_num+2} due to no description')
          continue
 
       location = row[location_column]
