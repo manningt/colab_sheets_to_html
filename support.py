@@ -112,7 +112,7 @@ def make_obj_dict(inventory_rows, col_enum, locations_list, location_year, entri
 
    location_column = None
    for column_enum in col_enum:
-      if column_enum.name.startswith(location_year) and column_enum.name.tolower().endswith("location"):
+      if column_enum.name.startswith(location_year) and column_enum.name.lower().endswith("location"):
          location_column = column_enum.value
          break
    if not location_column:
